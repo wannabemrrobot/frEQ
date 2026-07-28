@@ -1,0 +1,7 @@
+build/
+.DS_Store
+*.xcuserdata
+xcuserdata/
+
+# Local Claude Code tooling config (per-user)
+.claude/settings.local.json
