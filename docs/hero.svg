@@ -1,0 +1,40 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 840 260" width="840" height="260" role="img" aria-label="FrEQ — system-wide parametric equalizer for macOS">
+  <defs>
+    <linearGradient id="bg" x1="0" y1="0" x2="0.4" y2="1">
+      <stop offset="0" stop-color="#0B1220"/>
+      <stop offset="1" stop-color="#0F1B2E"/>
+    </linearGradient>
+    <linearGradient id="accent" x1="0" y1="0" x2="1" y2="0">
+      <stop offset="0" stop-color="#38BDF8"/>
+      <stop offset="0.5" stop-color="#818CF8"/>
+      <stop offset="1" stop-color="#C084FC"/>
+    </linearGradient>
+  </defs>
+
+  <rect x="0" y="0" width="840" height="260" rx="22" fill="url(#bg)"/>
+  <rect x="0.5" y="0.5" width="839" height="259" rx="21.5" fill="none" stroke="#1E2A3C" stroke-width="1"/>
+
+  <!-- eyebrow -->
+  <text x="420" y="54" text-anchor="middle" font-family="-apple-system, BlinkMacSystemFont, 'Segoe UI', Helvetica, Arial, sans-serif" font-size="13" font-weight="600" letter-spacing="4" fill="#5B6B84">PARAMETRIC EQ · EFFECTS RACK · MENU BAR</text>
+
+  <!-- wordmark -->
+  <text x="420" y="142" text-anchor="middle" font-family="-apple-system, BlinkMacSystemFont, 'Segoe UI', Helvetica, Arial, sans-serif" font-size="92" font-weight="800" letter-spacing="-2">
+    <tspan fill="#E6EDF3">Fr</tspan><tspan fill="url(#accent)">EQ</tspan>
+  </text>
+
+  <!-- tagline -->
+  <text x="420" y="178" text-anchor="middle" font-family="-apple-system, BlinkMacSystemFont, 'Segoe UI', Helvetica, Arial, sans-serif" font-size="18" font-weight="500" fill="#93A1B5">System-wide parametric equalizer for macOS</text>
+
+  <!-- mini EQ frequency-response graph -->
+  <g>
+    <line x1="80" y1="233" x2="760" y2="233" stroke="#22304A" stroke-width="1"/>
+    <line x1="220" y1="196" x2="220" y2="233" stroke="#182437" stroke-width="1"/>
+    <line x1="360" y1="196" x2="360" y2="233" stroke="#182437" stroke-width="1"/>
+    <line x1="500" y1="196" x2="500" y2="233" stroke="#182437" stroke-width="1"/>
+    <line x1="640" y1="196" x2="640" y2="233" stroke="#182437" stroke-width="1"/>
+    <path d="M 80 219 C 170 219 205 199 300 200 C 390 201 435 227 520 225 C 600 223 655 203 760 208" fill="none" stroke="url(#accent)" stroke-width="3" stroke-linecap="round"/>
+    <circle cx="300" cy="200" r="4" fill="#E6EDF3"/>
+    <circle cx="520" cy="225" r="4" fill="#E6EDF3"/>
+    <circle cx="700" cy="206" r="4" fill="#E6EDF3"/>
+  </g>
+</svg>
