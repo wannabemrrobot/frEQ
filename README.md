@@ -9,6 +9,7 @@
 [![Swift + C](https://img.shields.io/badge/built%20with-Swift%20%2B%20C-F05138?logo=swift&logoColor=white)](#architecture)
 [![No dependencies](https://img.shields.io/badge/dependencies-none-22C55E)](#build)
 [![License: MIT](https://img.shields.io/badge/license-MIT-8B5CF6)](LICENSE)
+[![Release](https://img.shields.io/github/v/release/wannabemrrobot/frEQ?color=0EA5E9&label=release&sort=semver)](https://github.com/wannabemrrobot/frEQ/releases/latest)
 
 [Features](#features) · [How it works](#how-it-works) · [Install](#install) · [Effects](#effects-rack) · [Troubleshooting](#troubleshooting) · [FAQ](#limitations--non-goals)
 
@@ -86,11 +87,21 @@ transport, clocking, drift handling).
 
 ## Install
 
-### From source
+### Download (DMG)
+
+[**⬇ Download the latest `FrEQ.dmg`**](https://github.com/wannabemrrobot/frEQ/releases/latest/download/FrEQ.dmg) from the [Releases page](https://github.com/wannabemrrobot/frEQ/releases), then:
+
+1. Open the `.dmg` and double-click **Install FrEQ.command**.
+2. FrEQ isn't notarized (it's a free, open-source project), so macOS Gatekeeper blocks it **once** — this is expected. Approve it a single time:
+   - **Right-click** the installer → **Open** → **Open**, *or*
+   - on macOS 15/26 if it still refuses: **System Settings → Privacy & Security → “Open Anyway”**.
+3. Enter your password once. The installer copies the app + driver, clears the quarantine flag, and restarts the audio server. FrEQ then lives in your menu bar and in **System Settings → Sound**.
+
+### Build from source
 
 ```sh
-git clone https://github.com/wannabemrrobot/FrEQ.git
-cd FrEQ
+git clone https://github.com/wannabemrrobot/frEQ.git
+cd frEQ
 make            # builds build/FrEQ.driver and build/FrEQ.app (universal, ad-hoc signed)
 make test       # runs the ring-buffer, DSP, driver-host, and parser suites
 make install    # sudo: installs the driver, restarts coreaudiod, copies the app to /Applications
