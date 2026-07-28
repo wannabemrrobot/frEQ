@@ -30,17 +30,14 @@ but it works as a general-purpose system EQ too.
 > (macOS supports SBC/AAC only — no LDAC/aptX) and cannot prevent the HFP mic-profile quality drop
 > when an app uses the headset microphone. Those are macOS/Bluetooth constraints, not EQ problems.
 
-## Screenshots
+## Demo
 
-> _📸 Add real screenshots here for maximum reach — the menu-bar dropdown and the full **Controls**
-> window (Equalizer / Effects / Output tabs). Drop them in `docs/` and reference them below._
-
-<!-- Uncomment once you've captured them:
 <p align="center">
-  <img src="docs/menubar.png"  alt="FrEQ menu-bar dropdown" width="320">
-  <img src="docs/controls.png" alt="FrEQ controls window"   width="460">
+  <img src="docs/demo.gif" alt="FrEQ in action — importing a Sony WH-1000XM4 AutoEq profile, adjusting the parametric bands, and switching output" width="820">
 </p>
--->
+
+> The **Equalizer** tab (WH‑1000XM4 profile, 10 bands + preamp), the **Processed / Original** A-B toggle,
+> built-in presets & **Import AutoEq**, and the **Output** tab (device, latency presets, auto-enable).
 
 ## Features
 
