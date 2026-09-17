@@ -196,6 +196,44 @@ final class AudioDeviceManager {
         return ok
     }
 
+    /// Master mute state, or nil if the device exposes no mute control. Tries
+    /// the master element, then the first two channels (muted only if both are).
+    func outputMute(_ id: AudioDeviceID) -> Bool? {
+        var master = Self.address(kAudioDevicePropertyMute, kAudioObjectPropertyScopeOutput, kAudioObjectPropertyElementMain)
+        if AudioObjectHasProperty(id, &master), let v: UInt32 = Self.getValue(id, master, default: 0) {
+            return v != 0
+        }
+        var vals: [Bool] = []
+        for ch in [UInt32(1), UInt32(2)] {
+            var a = Self.address(kAudioDevicePropertyMute, kAudioObjectPropertyScopeOutput, ch)
+            if AudioObjectHasProperty(id, &a), let v: UInt32 = Self.getValue(id, a, default: 0) { vals.append(v != 0) }
+        }
+        return vals.isEmpty ? nil : vals.allSatisfy { $0 }
+    }
+
+    /// Set the master mute state. Returns true if the device accepted it (some
+    /// devices expose a read-only mute, or none at all).
+    @discardableResult
+    func setOutputMute(_ id: AudioDeviceID, _ muted: Bool) -> Bool {
+        let v = UInt32(muted ? 1 : 0)
+        var master = Self.address(kAudioDevicePropertyMute, kAudioObjectPropertyScopeOutput, kAudioObjectPropertyElementMain)
+        var settable: DarwinBoolean = false
+        if AudioObjectHasProperty(id, &master),
+           AudioObjectIsPropertySettable(id, &master, &settable) == noErr, settable.boolValue {
+            return Self.setValue(id, master, v)
+        }
+        var ok = false
+        for ch in [UInt32(1), UInt32(2)] {
+            var a = Self.address(kAudioDevicePropertyMute, kAudioObjectPropertyScopeOutput, ch)
+            var s: DarwinBoolean = false
+            if AudioObjectHasProperty(id, &a),
+               AudioObjectIsPropertySettable(id, &a, &s) == noErr, s.boolValue {
+                if Self.setValue(id, a, v) { ok = true }
+            }
+        }
+        return ok
+    }
+
     // MARK: - Sample rate
 
     func nominalSampleRate(_ id: AudioDeviceID) -> Double? {

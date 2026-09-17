@@ -509,37 +509,57 @@ final class AppState: ObservableObject {
         }
     }
 
-    /// Move the volume onto the virtual device and set the physical device to
-    /// unity, so audio passes through a single volume stage (matching direct
-    /// playback). If the physical device can't be set to unity, keep the
-    /// virtual device at unity instead so we don't double-attenuate.
+    /// Move the volume AND mute onto the virtual device and set the physical
+    /// device to unity/unmuted, so audio passes through a single level stage
+    /// (matching direct playback). If the physical device can't be set to unity,
+    /// keep the virtual device at unity instead so we don't double-attenuate.
+    ///
+    /// Mute has to travel with the volume, not be left behind: while enabled the
+    /// virtual device is the system default, so the volume keys mute *it*, and
+    /// the driver bakes that mute into the captured mix (gain 0). A mute left on
+    /// either device is total silence with no visible cause — so each enable
+    /// rewrites the virtual device's mute from the physical one's, which also
+    /// clears any mute stranded on the virtual device by a previous session.
     private func syncVolumeOnEnable(output: AudioDevice, virtual: AudioDevice) {
         restoreVolumeSync()   // undo any previous sync first
         guard let physVol = deviceManager.outputVolume(output.id) else { return }
         deviceManager.setOutputVolume(virtual.id, physVol)
         let unity = deviceManager.setOutputVolume(output.id, 1.0)
+        let physMute = deviceManager.outputMute(output.id) ?? false
         if unity {
+            // Only hand the mute to the virtual device if we can actually clear
+            // it on the physical one; otherwise both ends are muted and
+            // unmuting from the FrEQ side would still produce silence.
+            let clearedMute = physMute ? deviceManager.setOutputMute(output.id, false) : true
+            deviceManager.setOutputMute(virtual.id, physMute && clearedMute)
             volumeSyncedUID = output.uid
             // Persist the pre-sync volume so an unclean exit can be undone at
             // the next launch (see restoreStrandedVolumeSync).
             persistVolumeSyncRecord(uid: output.uid, savedVolume: physVol)
-            DebugLog.log("volume sync: virtual←\(String(format: "%.2f", physVol)), \(output.name)←1.0")
+            DebugLog.log("volume sync: virtual←\(String(format: "%.2f", physVol))/mute=\(physMute && clearedMute), \(output.name)←1.0/unmuted")
         } else {
             // Couldn't set the physical to unity — avoid double attenuation by
             // leaving the virtual device at unity (physical keeps the volume).
+            // Same reasoning for mute: the physical device still owns it.
             deviceManager.setOutputVolume(virtual.id, 1.0)
+            deviceManager.setOutputMute(virtual.id, false)
             clearVolumeSyncRecord()   // physical untouched; nothing to restore
-            DebugLog.log("volume sync: \(output.name) volume not settable; virtual←1.0")
+            DebugLog.log("volume sync: \(output.name) volume not settable; virtual←1.0/unmuted")
         }
     }
 
-    /// Restore the physical device's volume to the current perceived level
-    /// (the virtual device's), so loudness is continuous when we stand down.
+    /// Restore the physical device's volume and mute to the current perceived
+    /// state (the virtual device's), so both loudness and mute are continuous
+    /// when we stand down — toggling FrEQ off while muted stays muted, and
+    /// toggling off while audible stays audible.
     private func restoreVolumeSync() {
         guard let uid = volumeSyncedUID, let dev = deviceManager.device(byUID: uid) else { return }
-        let level = deviceManager.virtualDevice().flatMap { deviceManager.outputVolume($0.id) } ?? 1.0
+        let virtual = deviceManager.virtualDevice()
+        let level = virtual.flatMap { deviceManager.outputVolume($0.id) } ?? 1.0
+        let muted = virtual.flatMap { deviceManager.outputMute($0.id) } ?? false
         deviceManager.setOutputVolume(dev.id, level)
-        DebugLog.log("volume sync restored: \(dev.name)←\(String(format: "%.2f", level))")
+        deviceManager.setOutputMute(dev.id, muted)
+        DebugLog.log("volume sync restored: \(dev.name)←\(String(format: "%.2f", level))/mute=\(muted)")
         volumeSyncedUID = nil
         clearVolumeSyncRecord()
     }
@@ -552,6 +572,12 @@ final class AppState: ObservableObject {
     // would read that as the user's real volume and re-apply it — so loudness
     // ratchets to full on every relaunch. To make it crash-safe we persist the
     // pre-sync volume and hand it back at the next launch.
+    //
+    // Mute is deliberately NOT persisted here. An unclean exit leaves the
+    // physical device *unmuted*, which is not a hazard the way "stranded at
+    // 100%" is, and restoring a long-stale mute at launch would silence the
+    // user with no visible cause — the exact failure this sync exists to
+    // prevent. Live mute continuity is handled by the sync/restore pair above.
     private static let volSyncUIDKey = "volumeSync.deviceUID"
     private static let volSyncVolKey = "volumeSync.savedVolume"
 
